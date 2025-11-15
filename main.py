@@ -16,7 +16,7 @@ def abre_conexao():
         print(f"Erro ao conectar ao banco: {e}")
         return None
 
-def adicionar_colaborador():
+def adicionar_colaborador(conexao, cursor):
     conn = abre_conexao()
     if not conn:
         print("Erro: Não foi possível conectar ao Banco de Dados.")
@@ -45,3 +45,48 @@ def adicionar_colaborador():
 
     cursor.close()
     conn.close()
+
+def buscar_colaborador():
+    conn = abre_conexao()
+    if not conn:
+        print("Erro: Não foi possível conectar ao Banco de Dados.")
+        return
+
+    cursor = conn.cursor()
+
+    try:
+        cpf = input("Digite o CPF do colaborador: ").strip()
+
+        cursor.execute('''
+            SELECT
+                ID_COLABORADOR, NOME, DEPARTAMENTO, CPF, DATA_NASCIMENTO 
+            FROM COLABORADOR
+            WHERE cpf = :cpf
+            ''',{'cpf': cpf}   
+    )
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            print("Nenhum paciente encontrado com esse CPF.")     
+            return
+        try:
+            data_nascimento = resultado[2].strftime('%Y-%m-%d')
+        except:
+            data_nascimento = str(resultado[2])
+
+        print("\n----- Dados do colaborador -----")
+        print(f"Matrícula colaborador: {resultado[0]}")
+        print(f"Nome: {resultado[1]}")
+        print(f"Departamento: {resultado[2]}")
+        print(f"CPF: {resultado[3]}")
+        print(f"Data de nascimento: {resultado[4]}")
+         
+    except Exception as e:
+        print(f"Erro ao consultar paciente: {e}") 
+
+    
+    query = '''
+        SELECT ID_COLABORADOR, NOME, DEPARTAMENTO, CPF
+        FROM COLABORADOR
+        ORDER BY ID_COLABORADOR
+    '''
