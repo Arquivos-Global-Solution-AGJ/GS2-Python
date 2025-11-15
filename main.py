@@ -71,6 +71,36 @@ def buscar_colaborador():
     except Exception as e:
         print(f"Erro ao consultar paciente: {e}") 
 
+def registrar_sentimento():
+    while True:
+        print("--- Esse é o espaço do colaborador, se sinta livre para utilizá-lo ---")
+        print("1 - Registrar novo sentimento")
+        print("2 - Conversar com IA (apoio emocional)")
+        print("3 - Dicas para se acalmar")
+        print("0 - Voltar")
+
+        escolha = int(input("Escolha uma opção"))
+
+        try:
+            match escolha:
+                case 0:
+                    break
+                case 1:
+                    inserir_sentimento()
+                case 2:
+                    conversar_IA()
+                case 3:
+                    dicas_importantes()
+        except:
+            print("Opção inválida, escolha de 0 a 3.") 
+
+def inserir_sentimento():
+    try:
+        print("--- Registre aqui seu sentimento hoje ---")
+    except:
+        return
+
+
 
 if __name__ == '__main__':
     conexao = abre_conexao()
