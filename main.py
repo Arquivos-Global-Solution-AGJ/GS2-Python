@@ -1,5 +1,6 @@
 import oracledb
 from datetime import datetime
+import google.generativeai as genai
 
 SERVIDOR = 'oracle.fiap.com.br'
 PORTA = 1521
@@ -89,7 +90,7 @@ def registrar_sentimento():
                 case 1:
                     inserir_sentimento()
                 case 2:
-                    conversar_IA()
+                    conversar_ia()
                 case 3:
                     dicas_importantes()
         except:
@@ -98,7 +99,23 @@ def registrar_sentimento():
 def inserir_sentimento():
     print("--- Registre aqui seu sentimento hoje ---")
     try:
+        cpf = input("Digite o CPF do colaborador: ")
+
+        cursor.execute("""
+            SELECT ID_COLABORADOR 
+            FROM COLABORADOR 
+            WHERE CPF = :cpf
+        """, {"cpf": cpf})
+
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            print("❌ Colaborador não encontrado!")
+            return
+
+        id_colaborador = resultado[0]
         dicionario = {
+            'id_colaborador': id_colaborador,
             'humor' : int(input("De 0 a 10, qual seu humor hoje?")),
             'estresse' : int(input("De 0 a 10, qual seu nível de estresse hoje?")),
             'descricao' : input("Descreva o porque das suas notas acima: ")
@@ -106,10 +123,10 @@ def inserir_sentimento():
 
         query = '''
             INSERT INTO HUMOR_REGISTRO(
-                HUMOR, ESTRESSE, DESCRICAO
+                ID_COLABORADOR, HUMOR, ESTRESSE, DESCRICAO
             )
             VALUES(
-                :humor, :estresse, :descricao
+                :id_colaborador ,:humor, :estresse, :descricao
             )
         '''
         cursor.execute(query, dicionario)
