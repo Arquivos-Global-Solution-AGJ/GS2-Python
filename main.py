@@ -1,4 +1,5 @@
 import oracledb
+from datetime import datetime
 
 SERVIDOR = 'oracle.fiap.com.br'
 PORTA = 1521
@@ -17,20 +18,20 @@ def abre_conexao():
         return None
 
 def adicionar_colaborador(conexao, cursor):
-    
-
     print("\n----- Cadastro de colaborador -----")
-    nome = input("Digite o nome do colaborador(a): ")
-    cpf = input("Digite o CPF do colaborador(a): ")
-    departamento = input("Digite o setor do colaborador(a)")
-
     try:
-        sql = """
-            INSERT INTO COLABORADOR (NOME, DEPARTAMENTO, CPF)
-            VALUES (:1, :2, :3)
+        dicionario = {
+            'nome' : input("Digite o nome do colaborador(a): "),
+            'cpf' : input("Digite o CPF do colaborador(a): "),
+            'departamento' : input("Digite o setor do colaborador(a): "),
+            'dt_nasc' : datetime.strptime(input('Digite a data de nascimento (DD/MM/YYYY): '), '%d/%m/%Y'),
+        }
+        query = """
+            INSERT INTO COLABORADOR (NOME, DEPARTAMENTO, CPF, DATA_NASCIMENTO)
+            VALUES (:nome, :departamento, :cpf, :dt_nasc )
         """
 
-        cursor.execute(sql, (nome, departamento, cpf))
+        cursor.execute(query, dicionario)
         conexao.commit()
 
         print("✅ Colaborador cadastrado com sucesso!")
@@ -95,10 +96,27 @@ def registrar_sentimento():
             print("Opção inválida, escolha de 0 a 3.") 
 
 def inserir_sentimento():
+    print("--- Registre aqui seu sentimento hoje ---")
     try:
-        print("--- Registre aqui seu sentimento hoje ---")
-    except:
-        return
+        dicionario = {
+            'humor' : int(input("De 0 a 10, qual seu humor hoje?")),
+            'estresse' : int(input("De 0 a 10, qual seu nível de estresse hoje?")),
+            'descricao' : input("Descreva o porque das suas notas acima: ")
+        }
+
+        query = '''
+            INSERT INTO HUMOR_REGISTRO(
+                HUMOR, ESTRESSE, DESCRICAO
+            )
+            VALUES(
+                :humor, :estresse, :descricao
+            )
+        '''
+        cursor.execute(query, dicionario)
+        conexao.commit()
+        print("Registro realizado com sucesso!")
+    except Exception as e:
+        print(f"Erro ao inserir registro de sentimento: {e}")
 
 
 
@@ -120,7 +138,7 @@ if __name__ == '__main__':
         print("5 - Atualizar colaborador")
         print("6 - Números de emergência")
         try:
-            opcao = int(input("Escolha uma opção"))
+            opcao = int(input("Escolha uma opção: "))
             print("-----")
             match opcao:
                 case 0:
